@@ -5,15 +5,15 @@ FROM golang:1.22-alpine AS builder
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy go module and sum files
+# Copy go module files for dependency caching
 COPY go.mod go.sum ./
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed.
-RUN go mod download
-RUN go mod verify
+RUN go mod download && go mod verify
 
-# Copy the source code into the container
-COPY . .
+# Copy the source code into the container (only necessary files)
+COPY cmd/ cmd/
+COPY internal/ internal/
 
 # Build the Go application, creating a statically linked binary
 # CGO_ENABLED=0 is important for creating a static binary without C dependencies

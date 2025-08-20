@@ -22,34 +22,28 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd gemini-anti-truncate-go
         go mod download
         go mod tidy
 
     - name: Run unit tests
       run: |
-        cd gemini-anti-truncate-go
         go test -v ./internal/...
 
     - name: Run integration tests
       run: |
-        cd gemini-anti-truncate-go
         go test -v ./test/...
 
     - name: Run coverage tests
       run: |
-        cd gemini-anti-truncate-go
         go test -coverprofile=coverage.out ./internal/...
         go tool cover -func=coverage.out
 
     - name: Run benchmark tests
       run: |
-        cd gemini-anti-truncate-go
         go test -bench=. ./test/...
 
     - name: Run race condition tests
       run: |
-        cd gemini-anti-truncate-go
         go test -race ./internal/...
 
   docker:
@@ -64,10 +58,8 @@ jobs:
 
     - name: Build Docker image
       run: |
-        cd gemini-anti-truncate-go
         docker build -t gemini-proxy .
 
     - name: Test Docker image
       run: |
-        cd gemini-anti-truncate-go
         docker run --rm gemini-proxy echo "Docker image is working"

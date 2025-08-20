@@ -1,0 +1,55 @@
+# Build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build artifacts
+bin/
+obj/
+
+# Docker build context
+Dockerfile
+.dockerignore
+
+# Test files
+test/
+*_test.go
+coverage.out
+*.test
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git files
+.git/
+.gitignore
+
+# GitHub Actions
+.github/
+
+# Documentation
+README.md
+CLAUDE.md
+technical-spec.md
+
+# Configuration files that shouldn't be in the container
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
