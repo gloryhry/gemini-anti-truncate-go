@@ -1,0 +1,31 @@
+# Coverage configuration for the Gemini Anti-Truncate Go project
+
+# Minimum coverage threshold (in percentage)
+min_coverage: 70
+
+# Packages to include in coverage analysis
+include:
+  - ./internal/...
+  - ./cmd/...
+
+# Packages to exclude from coverage analysis
+exclude:
+  - ./test/...
+  - ./vendor/...
+  - ./internal/config/config_test.go
+  - ./internal/gemini/constants_test.go
+  - ./internal/util/util_test.go
+  - ./internal/proxy/proxy_test.go
+  - ./internal/handler/handler_test.go
+
+# Coverage mode (atomic, count, or set)
+mode: atomic
+
+# Output format (html, json, xml, or text)
+output_format: html
+
+# Output file path
+output_file: coverage.html
+
+# Coverage profile file
+profile_file: coverage.out

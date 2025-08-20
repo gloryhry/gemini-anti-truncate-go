@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  gemini-proxy:
+    # Build the Docker image using the Dockerfile in the current directory.
+    build: .
+    # Name the container for easier identification.
+    container_name: gemini-proxy-service
+    # Map port 8080 on the host to port 8080 in the container.
+    # This makes the proxy accessible via http://localhost:8080.
+    ports:
+      - "8080:8080"
+    # Load environment variables from a .env file.
+    # This allows for easy configuration of API keys, debug mode, etc.
+    # You will need to create a '.env' file based on '.env.example'.
+    env_file:
+      - .env
+    # Restart the container automatically if it crashes, unless it was manually stopped.
+    restart: unless-stopped
