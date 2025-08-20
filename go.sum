@@ -1,0 +1,12 @@
+github.com/gorilla/mux v1.8.0 h1:TuBL49tXwgrFYHBtx0vudPQ8+HJuoZsEF5JPKmYPIe4=
+github.com/gorilla/mux v1.8.0/go.mod h1:DVbg2Zu859jmmJBUN9V7RAF73Vn5PCg7bFTJ7d72NKM=
+github.com/stretchr/testify v1.8.4 h1:9MDz2boVzZS5aavg4/v/tGd+R9FDmPq4L7BR4iH0oC0=
+github.com/stretchr/testify v1.8.4/go.mod h1:E4VQ1KdhLcLXXE3P6OfXJzH7oI8l3N7dc8Nwq1xUXq0=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/stretchr/objx v0.5.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
+github.com/stretchr/objx v0.5.0/go.mod h1:YHg4s860MSxCeGJkzgO20G8VHn2j39gZ6e2b0L513k4=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:VdBaldfmMZZEpy09A6QHHzER3IBqX50PzTBqY7JxQVk=

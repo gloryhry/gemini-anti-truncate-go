@@ -109,17 +109,17 @@ This allows for better control over dependency updates and image size optimizati
 本项目已配置自动化 CI/CD，每次推送到 `main` 分支会自动构建并推送 Docker 镜像到 GitHub Container Registry (GHCR)。
 
 **镜像标签**:
-- `ghcr.io/your-username/gemini-anti-truncate-go:latest` - 最新版本（main 分支）
-- `ghcr.io/your-username/gemini-anti-truncate-go:develop` - 开发版本（develop 分支）
-- `ghcr.io/your-username/gemini-anti-truncate-go:v1.0.0` - 版本标签
+- `ghcr.io/gloryhry/gemini-anti-truncate-go:latest` - 最新版本（main 分支）
+- `ghcr.io/gloryhry/gemini-anti-truncate-go:develop` - 开发版本（develop 分支）
+- `ghcr.io/gloryhry/gemini-anti-truncate-go:v1.0.0` - 版本标签
 
 **拉取镜像**:
 ```bash
 # 拉取最新版本
-docker pull ghcr.io/your-username/gemini-anti-truncate-go:latest
+docker pull ghcr.io/gloryhry/gemini-anti-truncate-go:latest
 
 # 拉取指定版本
-docker pull ghcr.io/your-username/gemini-anti-truncate-go:v1.0.0
+docker pull ghcr.io/gloryhry/gemini-anti-truncate-go:v1.0.0
 ```
 
 **运行容器**:
@@ -128,14 +128,14 @@ docker pull ghcr.io/your-username/gemini-anti-truncate-go:v1.0.0
 docker run -p 8080:8080 \
   -e GEMINI_API_KEY=your_api_key \
   -e UPSTREAM_URL_BASE=https://generativelanguage.googleapis.com \
-  ghcr.io/your-username/gemini-anti-truncate-go:latest
+  ghcr.io/gloryhry/gemini-anti-truncate-go:latest
 
 # 后台运行
 docker run -d -p 8080:8080 \
   --name gemini-proxy \
   -e GEMINI_API_KEY=your_api_key \
   -e UPSTREAM_URL_BASE=https://generativelanguage.googleapis.com \
-  ghcr.io/your-username/gemini-anti-truncate-go:latest
+  ghcr.io/gloryhry/gemini-anti-truncate-go:latest
 ```
 
 ## Configuration
@@ -280,7 +280,7 @@ Regular security scanning should be part of your CI/CD pipeline to ensure depend
 #### 镜像推送权限
 - **推送权限**: 工作流会自动请求必要的权限
 - **认证方式**: 使用 `secrets.GITHUB_TOKEN` 进行认证
-- **镜像仓库**: `ghcr.io/your-username/gemini-anti-truncate-go`
+- **镜像仓库**: `ghcr.io/gloryhry/gemini-anti-truncate-go`
 
 ## Performance
 
