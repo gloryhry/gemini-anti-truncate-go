@@ -29,12 +29,27 @@ The service works by:
 - Docker (for containerized deployment)
 - A Gemini API key
 
+### Go Modules
+
+This project uses Go modules for dependency management. The `go.mod` and `go.sum` files are included in the repository. To ensure all dependencies are correctly set up:
+
+```bash
+# Initialize and verify modules
+go mod tidy
+
+# Download dependencies
+go mod download
+```
+
 ### Building
 
 ```bash
 # Clone the repository
 git clone <repository-url>
 cd gemini-anti-truncate-go
+
+# Initialize Go modules (if not already done)
+go mod tidy
 
 # Build the binary
 go build -o gemini-proxy cmd/gemini-proxy/main.go
@@ -67,12 +82,27 @@ HTTP_PORT=8080 \
 # Build the Docker image
 docker build -t gemini-proxy .
 
+# Build with dependency updates
+docker build --build-arg DEP_UPDATE=true -t gemini-proxy .
+
+# Build with dependency updates and clean cache
+docker build --build-arg DEP_UPDATE=true --build-arg DEP_CLEAN_CACHE=true -t gemini-proxy .
+
 # Run with Docker
 docker run -p 8080:8080 -e GEMINI_API_KEY=your-api-key gemini-proxy
 
 # Or with docker-compose
 docker-compose up
 ```
+
+#### Dependency Management in Docker
+
+The Docker build process supports flexible dependency management through build arguments:
+
+- `DEP_UPDATE`: Set to `true` to update dependencies during build
+- `DEP_CLEAN_CACHE`: Set to `true` to clean Go module cache after download
+
+This allows for better control over dependency updates and image size optimization.
 
 #### 从 GitHub Container Registry 拉取镜像
 
@@ -153,6 +183,66 @@ make test-integration
 # Run tests with coverage
 make test-coverage
 ```
+
+## Dependency Management
+
+This project uses Go modules for dependency management. Dependencies are declared in `go.mod` and their exact versions are tracked in `go.sum`.
+
+### Managing Dependencies
+
+To add a new dependency:
+```bash
+go get github.com/some/package
+```
+
+To update a dependency:
+```bash
+go get -u github.com/some/package
+```
+
+To update all dependencies to their latest minor/patch versions:
+```bash
+go get -u ./...
+```
+
+After updating dependencies, always run:
+```bash
+go mod tidy
+```
+
+### Dependency Conflict Resolution
+
+If you encounter dependency conflicts:
+
+1. **Identify conflicts**: Run `go mod graph` to see the dependency tree
+2. **Resolve conflicts**: Use `go mod edit -replace` directive in `go.mod` for temporary overrides
+3. **Verify resolution**: Run `go mod tidy` and tests to ensure conflicts are resolved
+
+Example of resolving a conflict:
+```bash
+# In go.mod, add a replace directive:
+replace github.com/conflicting/package => github.com/conflicting/package v1.2.3
+```
+
+### Dependency Upgrade Strategy
+
+1. **Regular updates**: Update dependencies regularly to get security fixes and improvements
+2. **Major version updates**: Test thoroughly as they may contain breaking changes
+3. **Security scanning**: Use tools like `govulncheck` to identify vulnerabilities
+4. **Version pinning**: Pin to specific versions in production environments
+
+### Security Scanning
+
+To scan for vulnerabilities in dependencies:
+```bash
+# Install govulncheck if not already installed
+go install golang.org/x/vuln/cmd/govulncheck@latest
+
+# Scan for vulnerabilities
+govulncheck ./...
+```
+
+Regular security scanning should be part of your CI/CD pipeline to ensure dependencies are secure.
 
 ## CI/CD Workflows
 

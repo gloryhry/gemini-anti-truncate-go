@@ -14,6 +14,7 @@ GOTEST = $(GOCMD) test
 GOGET = $(GOCMD) get
 GOVET = $(GOCMD) vet
 GOFMT = $(GOCMD) fmt
+GOINSTALL = $(GOCMD) install
 
 # Default target
 all: build
@@ -25,6 +26,17 @@ build:
 # Install dependencies
 deps:
 	$(GOGET) -v ./...
+	go mod tidy
+
+# Update dependencies to latest minor/patch versions
+deps-update:
+	$(GOGET) -u ./...
+	go mod tidy
+
+# Clean dependencies
+deps-clean:
+	go mod tidy
+	go clean -modcache
 
 # Run tests
 test:
@@ -55,6 +67,17 @@ test-all:
 	$(GOCMD) tool cover -html=coverage.out -o coverage.html
 	$(GOCMD) tool cover -func=coverage.out
 
+# Security scan dependencies
+security-scan:
+	$(GOINSTALL) golang.org/x/vuln/cmd/govulncheck@latest
+	govulncheck ./...
+
+# Verify dependencies
+deps-verify:
+	go mod verify
+	go mod tidy
+	@git diff --exit-code go.mod go.sum || (echo "Dependencies have uncommitted changes"; exit 1)
+
 # Clean build artifacts
 clean:
 	$(GOCLEAN)
@@ -73,6 +96,14 @@ vet:
 # Run Docker build
 docker-build:
 	docker build -t $(PROJECT_NAME) .
+
+# Run Docker build with dependency updates
+docker-build-update:
+	docker build --build-arg DEP_UPDATE=true -t $(PROJECT_NAME) .
+
+# Run Docker build with dependency updates and clean cache
+docker-build-clean:
+	docker build --build-arg DEP_UPDATE=true --build-arg DEP_CLEAN_CACHE=true -t $(PROJECT_NAME) .
 
 # Run Docker container
 docker-run:
@@ -96,20 +127,26 @@ help:
 	@echo "  all                  - Build the project (default)"
 	@echo "  build                - Build the project"
 	@echo "  deps                 - Install dependencies"
+	@echo "  deps-update          - Update dependencies to latest minor/patch versions"
+	@echo "  deps-clean           - Clean dependencies"
 	@echo "  test                 - Run unit tests"
 	@echo "  test-integration     - Run integration tests"
 	@echo "  test-coverage        - Run tests with coverage"
 	@echo "  test-bench           - Run benchmark tests"
 	@echo "  test-race            - Run race condition tests"
 	@echo "  test-all             - Run all tests"
+	@echo "  security-scan        - Scan for vulnerabilities in dependencies"
+	@echo "  deps-verify          - Verify dependencies"
 	@echo "  clean                - Clean build artifacts"
 	@echo "  fmt                  - Format code"
 	@echo "  vet                  - Vet code"
 	@echo "  docker-build         - Build Docker image"
+	@echo "  docker-build-update  - Build Docker image with dependency updates"
+	@echo "  docker-build-clean   - Build Docker image with dependency updates and clean cache"
 	@echo "  docker-run           - Run Docker container"
 	@echo "  docker-compose-up    - Run Docker Compose"
 	@echo "  docker-compose-up-detached - Run Docker Compose in detached mode"
 	@echo "  docker-compose-down  - Stop Docker Compose"
 	@echo "  help                 - Show this help message"
 
-.PHONY: all build deps test test-integration test-coverage test-bench test-race test-all clean fmt vet docker-build docker-run docker-compose-up docker-compose-up-detached docker-compose-down help
+.PHONY: all build deps deps-update deps-clean test test-integration test-coverage test-bench test-race test-all security-scan deps-verify clean fmt vet docker-build docker-build-update docker-build-clean docker-run docker-compose-up docker-compose-up-detached docker-compose-down help

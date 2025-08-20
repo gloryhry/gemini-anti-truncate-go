@@ -2,14 +2,26 @@
 # This stage uses the official Go image to build the application binary.
 FROM golang:1.22-alpine AS builder
 
+# Build arguments for dependency management
+ARG DEP_UPDATE=false
+ARG DEP_CLEAN_CACHE=false
+
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy go module files for dependency caching
+# Copy go mod files
 COPY go.mod go.sum ./
 
 # Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed.
-RUN go mod download && go mod verify
+RUN if [ "$DEP_UPDATE" = "true" ]; then \
+        go get -u ./... && \
+        go mod tidy; \
+    fi && \
+    go mod download && \
+    if [ "$DEP_CLEAN_CACHE" = "true" ]; then \
+        rm -rf /go/pkg/mod/cache; \
+    fi && \
+    go mod verify
 
 # Copy the source code into the container (only necessary files)
 COPY cmd/ cmd/

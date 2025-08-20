@@ -265,6 +265,41 @@ DEBUG_MODE=true go test -v ./...
 6. **Regularly update tests** when modifying code
 7. **Monitor coverage** and strive to improve it over time
 8. **Run tests frequently** during development
+9. **Regularly scan dependencies** for security vulnerabilities
+10. **Verify dependency integrity** before committing changes
+
+## Dependency Management and Security
+
+Regular dependency management and security scanning are crucial for maintaining a healthy codebase. See [DEPENDENCY.md](../DEPENDENCY.md) for detailed information about:
+
+- Dependency conflict resolution
+- Security scanning procedures
+- Dependency upgrade strategies
+- Docker dependency management
+
+### Security Scanning
+
+To scan for vulnerabilities in dependencies:
+```bash
+# Using make
+make security-scan
+
+# Or directly
+govulncheck ./...
+```
+
+### Dependency Verification
+
+To verify dependency integrity:
+```bash
+# Using make
+make deps-verify
+
+# Or directly
+go mod verify
+go mod tidy
+git diff --exit-code go.mod go.sum
+```
 
 ## Conclusion
 
