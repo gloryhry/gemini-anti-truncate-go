@@ -81,7 +81,7 @@ func HandleNonStream(w http.ResponseWriter, r *http.Request, initialReq *gemini.
 		// 5. Process the successful response
 		result, err := proxy.ProcessNonStream(respBodyBytes)
 		if err != nil {
-			if pErr, ok := err.(*gemini.ProxyError); ok {
+			if pErr, ok := err.(*proxy.ProxyError); ok {
 				util.SendJSONError(w, pErr.Message, pErr.StatusCode)
 			} else {
 				util.SendJSONError(w, "Failed to process non-stream response", http.StatusInternalServerError)

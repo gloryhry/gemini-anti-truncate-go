@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"gemini-anti-truncate-go/internal/gemini"
 	"gemini-anti-truncate-go/internal/util"
-	"io"
 	"net/http"
 	"strings"
 )
@@ -24,7 +24,7 @@ type StreamProcessingResult struct {
 func ProcessStream(w http.ResponseWriter, upstreamResp *http.Response) (*StreamProcessingResult, error) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		return nil, &gemini.ProxyError{Message: "Streaming unsupported", StatusCode: http.StatusInternalServerError}
+		return nil, &ProxyError{Message: "Streaming unsupported", StatusCode: http.StatusInternalServerError}
 	}
 
 	// Set client headers for SSE
@@ -130,7 +130,7 @@ func ProcessNonStream(body []byte) (*StreamProcessingResult, error) {
 	var response gemini.GenerateContentResponse
 	if err := json.Unmarshal(body, &response); err != nil {
 		util.Errorf("Error unmarshalling non-stream response: %v", err)
-		return nil, &gemini.ProxyError{Message: "Failed to parse upstream response", StatusCode: http.StatusBadGateway}
+		return nil, &ProxyError{Message: "Failed to parse upstream response", StatusCode: http.StatusBadGateway}
 	}
 
 	var accumulatedText string
@@ -159,7 +159,7 @@ func ProcessNonStream(body []byte) (*StreamProcessingResult, error) {
 	finalJSON, err := json.Marshal(response)
 	if err != nil {
 		util.Errorf("Error re-marshalling cleaned response: %v", err)
-		return nil, &gemini.ProxyError{Message: "Failed to construct final response", StatusCode: http.StatusInternalServerError}
+		return nil, &ProxyError{Message: "Failed to construct final response", StatusCode: http.StatusInternalServerError}
 	}
 
 
@@ -171,12 +171,14 @@ func ProcessNonStream(body []byte) (*StreamProcessingResult, error) {
 	}, nil
 }
 
-// Custom error for proxy-specific issues
+// ProxyError represents a custom error for proxy-specific issues.
+// It implements the error interface.
 type ProxyError struct {
 	Message    string
 	StatusCode int
 }
 
+// Error returns the error message.
 func (e *ProxyError) Error() string {
 	return e.Message
 }
