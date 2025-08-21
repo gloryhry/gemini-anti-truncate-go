@@ -88,7 +88,7 @@ func testRequestToModel(t *testing.T, modelName string) {
 	req.Header.Set("Content-Type", "application/json")
 	
 	// Create a response recorder
-	rr := httptest.NewRecorder()
+	// rr := httptest.NewRecorder()
 	
 	// TODO: Call the actual handler
 	// For now, we'll just verify the test structure

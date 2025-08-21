@@ -2,7 +2,6 @@ package test
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,18 +11,13 @@ import (
 
 // TestDockerBuild tests that the Docker image can be built successfully
 func TestDockerBuild(t *testing.T) {
-	// Change to the project directory
-	err := os.Chdir("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go")
-	if err != nil {
-		t.Fatalf("Failed to change directory: %v", err)
-	}
+	// Test assumes it is run from the project root.
 	
 	// Run docker build command
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
 	
-	cmd := exec.CommandContext(ctx, "docker", "build", "-t", "gemini-proxy-test", ".")
-	cmd.Dir = "C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go"
+	cmd := exec.CommandContext(ctx, "docker", "build", "-f", "../Dockerfile", "-t", "gemini-proxy-test", "..")
 	
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -40,11 +34,7 @@ func TestDockerRun(t *testing.T) {
 		t.Skip("Docker is not available, skipping Docker run test")
 	}
 	
-	// Change to the project directory
-	err := os.Chdir("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go")
-	if err != nil {
-		t.Fatalf("Failed to change directory: %v", err)
-	}
+	// Test assumes it is run from the project root.
 	
 	// Run docker run command with a short timeout to test startup
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -52,7 +42,6 @@ func TestDockerRun(t *testing.T) {
 	
 	// Run the container in detached mode
 	cmd := exec.CommandContext(ctx, "docker", "run", "-d", "-p", "8081:8080", "--name", "gemini-proxy-test-run", "gemini-proxy-test")
-	cmd.Dir = "C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go"
 	
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -98,16 +87,16 @@ HTTP_PORT=8080
 `
 	
 	// Write test environment file
-	err := os.WriteFile("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go\\.env.test", []byte(testEnvContent), 0644)
+	err := os.WriteFile(".env.test", []byte(testEnvContent), 0644)
 	if err != nil {
 		t.Fatalf("Failed to write test env file: %v", err)
 	}
 	
 	// Clean up
-	defer os.Remove("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go\\.env.test")
+	defer os.Remove(".env.test")
 	
 	// Verify the file was created
-	if _, err := os.Stat("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go\\.env.test"); os.IsNotExist(err) {
+	if _, err := os.Stat(".env.test"); os.IsNotExist(err) {
 		t.Error("Test env file was not created")
 	}
 	
@@ -129,15 +118,10 @@ func TestDockerCompose(t *testing.T) {
 		t.Skip("Docker Compose is not available, skipping test")
 	}
 	
-	// Change to the project directory
-	err := os.Chdir("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go")
-	if err != nil {
-		t.Fatalf("Failed to change directory: %v", err)
-	}
+	// Test assumes it is run from the project root.
 	
 	// Test docker-compose config
 	cmd := exec.Command("docker-compose", "config")
-	cmd.Dir = "C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go"
 	
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -164,7 +148,7 @@ func isDockerComposeAvailable() bool {
 // TestDockerfileStructure tests that the Dockerfile has the correct structure
 func TestDockerfileStructure(t *testing.T) {
 	// Read the Dockerfile
-	dockerfileContent, err := os.ReadFile("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go\\Dockerfile")
+	dockerfileContent, err := os.ReadFile("../Dockerfile")
 	if err != nil {
 		t.Fatalf("Failed to read Dockerfile: %v", err)
 	}
@@ -173,7 +157,7 @@ func TestDockerfileStructure(t *testing.T) {
 	
 	// Check for required elements
 	requiredElements := []string{
-		"FROM golang:1.22-alpine AS builder",
+		"FROM golang:1.25.0-alpine AS builder",
 		"FROM alpine:latest",
 		"CGO_ENABLED=0 GOOS=linux go build",
 		"COPY --from=builder",
@@ -193,13 +177,13 @@ func TestDockerfileStructure(t *testing.T) {
 // TestDockerIgnore tests that .dockerignore is properly configured
 func TestDockerIgnore(t *testing.T) {
 	// Check if .dockerignore file exists
-	if _, err := os.Stat("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go\\.dockerignore"); os.IsNotExist(err) {
+	if _, err := os.Stat("../.dockerignore"); os.IsNotExist(err) {
 		t.Log("No .dockerignore file found, which is fine")
 		return
 	}
 	
 	// Read the .dockerignore file
-	dockerignoreContent, err := os.ReadFile("C:\\Users\\Glory\\Desktop\\gemini-anti-truncate\\gemini-anti-truncate-go\\.dockerignore")
+	dockerignoreContent, err := os.ReadFile("../.dockerignore")
 	if err != nil {
 		t.Fatalf("Failed to read .dockerignore: %v", err)
 	}

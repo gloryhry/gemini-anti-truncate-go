@@ -8,7 +8,6 @@ import (
 	"gemini-anti-truncate-go/internal/gemini"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 )
@@ -23,9 +22,10 @@ func TestHTTPHandlers(t *testing.T) {
 	// Create a mock upstream server
 	upstreamServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Simulate a Gemini API response
+		const finishToken = `[RESPONSE_FINISHED]`
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintln(w, `{"candidates": [{"content": {"parts": [{"text": "This is a test response `[RESPONSE_FINISHED]`"}]}}]}`)
+		fmt.Fprintf(w, `{"candidates": [{"content": {"parts": [{"text": "This is a test response %s"}]}}]}`, finishToken)
 	}))
 	defer upstreamServer.Close()
 	
@@ -60,7 +60,7 @@ func TestHTTPHandlers(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	
 	// Create a response recorder
-	rr := httptest.NewRecorder()
+	// rr := httptest.NewRecorder()
 	
 	// Import the main package to access the router
 	// Note: This would require importing the main package, which is not recommended for tests
@@ -73,11 +73,12 @@ func TestHTTPHandlers(t *testing.T) {
 // TestStreamProcessing tests the stream processing functionality
 func TestStreamProcessing(t *testing.T) {
 	// Create a mock SSE stream response
-	streamData := `data: {"candidates": [{"content": {"parts": [{"text": "This is a test response"}]}}]}
+	const finishToken = `[RESPONSE_FINISHED]`
+	_ = fmt.Sprintf(`data: {"candidates": [{"content": {"parts": [{"text": "This is a test response"}]}}]}
 	
-data: {"candidates": [{"content": {"parts": [{"text": " with multiple chunks `[RESPONSE_FINISHED]`"}]}}]}
+data: {"candidates": [{"content": {"parts": [{"text": " with multiple chunks %s"}]}}]}
 	
-`
+`, finishToken)
 	
 	// Create a mock upstream response
 	upstreamResp := &http.Response{
@@ -88,7 +89,7 @@ data: {"candidates": [{"content": {"parts": [{"text": " with multiple chunks `[R
 	upstreamResp.Header.Set("Content-Type", "text/event-stream")
 	
 	// Create a response recorder
-	rr := httptest.NewRecorder()
+	// rr := httptest.NewRecorder()
 	
 	// TODO: Implement actual stream processing test
 	// This would require mocking the stream data properly
@@ -99,7 +100,8 @@ data: {"candidates": [{"content": {"parts": [{"text": " with multiple chunks `[R
 // TestNonStreamProcessing tests the non-stream processing functionality
 func TestNonStreamProcessing(t *testing.T) {
 	// Create a mock JSON response
-	jsonResponse := `{"candidates": [{"content": {"parts": [{"text": "This is a test response `[RESPONSE_FINISHED]`"}]}}]}`
+	const finishToken = `[RESPONSE_FINISHED]`
+	_ = fmt.Sprintf(`{"candidates": [{"content": {"parts": [{"text": "This is a test response %s"}]}}]}`, finishToken)
 	
 	// TODO: Implement actual non-stream processing test
 	// This would require calling the ProcessNonStream function directly
@@ -110,7 +112,7 @@ func TestNonStreamProcessing(t *testing.T) {
 // TestRetryMechanism tests the retry mechanism
 func TestRetryMechanism(t *testing.T) {
 	// Create a test request
-	originalReq := &gemini.GenerateContentRequest{
+	_ = &gemini.GenerateContentRequest{
 		Contents: []gemini.Content{
 			{
 				Role: "user",
@@ -121,7 +123,7 @@ func TestRetryMechanism(t *testing.T) {
 		},
 	}
 	
-	partialText := "This is a partial response"
+	_ = "This is a partial response"
 	
 	// Test building a retry request
 	// retryReq := proxy.BuildRetryRequest(originalReq, partialText)

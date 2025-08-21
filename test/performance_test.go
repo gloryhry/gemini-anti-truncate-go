@@ -318,7 +318,7 @@ func TestMemoryUsage(t *testing.T) {
 	runtime.ReadMemStats(&m2)
 	
 	// Calculate memory difference
-	memoryUsed := m2.Alloc - m1.Alloc
+	memoryUsed := int64(m2.Alloc) - int64(m1.Alloc)
 	memoryUsedMB := float64(memoryUsed) / 1024 / 1024
 	
 	t.Logf("Memory used: %.2f MB", memoryUsedMB)
