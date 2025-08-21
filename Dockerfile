@@ -1,53 +1,58 @@
-# ---- Builder Stage ----
-# This stage uses the official Go image to build the application binary.
-FROM golang:1.22-alpine AS builder
-
-# Build arguments for dependency management
-ARG DEP_UPDATE=false
-ARG DEP_CLEAN_CACHE=false
+# Use the official Golang image as the base image for building
+FROM golang:1.25.0-alpine AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy go mod files
+# Copy go mod and sum files
 COPY go.mod go.sum ./
 
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed.
+# Download dependencies
+ARG DEP_UPDATE=false
+ARG DEP_CLEAN_CACHE=false
+
+# Update dependencies if requested
 RUN if [ "$DEP_UPDATE" = "true" ]; then \
         go get -u ./... && \
         go mod tidy; \
-    fi && \
-    go mod download && \
-    if [ "$DEP_CLEAN_CACHE" = "true" ]; then \
-        rm -rf /go/pkg/mod/cache; \
-    fi && \
-    go mod verify
+    else \
+        go mod download; \
+    fi
 
-# Copy the source code into the container (only necessary files)
-COPY cmd/ cmd/
-COPY internal/ internal/
+# Clean Go module cache if requested
+RUN if [ "$DEP_CLEAN_CACHE" = "true" ]; then \
+        go clean -modcache; \
+    fi
 
-# Build the Go application, creating a statically linked binary
-# CGO_ENABLED=0 is important for creating a static binary without C dependencies
-# GOOS=linux ensures the binary is built for a Linux environment
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gemini-proxy ./cmd/gemini-proxy
+# Copy the source code into the container
+COPY . .
 
-# ---- Final Stage ----
-# This stage uses a minimal Alpine image to create a small and secure final image.
+# Build the binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gemini-proxy cmd/gemini-proxy/main.go
+
+# Use a minimal base image for the final stage
 FROM alpine:latest
 
-# Alpine Linux comes with a minimal package set, so we add root certificates
-# which are necessary for making HTTPS requests to the upstream Gemini API.
+# Install ca-certificates for HTTPS requests
 RUN apk --no-cache add ca-certificates
 
-# Set the working directory
-WORKDIR /root/
+# Create a non-root user
+RUN adduser -D -s /bin/sh appuser
 
-# Copy the pre-built binary file from the builder stage.
+# Set the working directory
+WORKDIR /app
+
+# Copy the binary from the builder stage
 COPY --from=builder /app/gemini-proxy .
 
-# Expose port 8080 to the outside world. This is the port the server will listen on.
+# Change ownership of the binary to the non-root user
+RUN chown appuser:appuser gemini-proxy
+
+# Switch to the non-root user
+USER appuser
+
+# Expose port 8080
 EXPOSE 8080
 
-# Command to run the executable when the container starts.
+# Command to run the binary
 CMD ["./gemini-proxy"]
