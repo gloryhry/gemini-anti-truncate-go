@@ -15,6 +15,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// extractBaseModelName extracts the base model name from a potentially suffixed model path.
+// For example, "gemini-2.5-pro:streamGenerateContent" becomes "gemini-2.5-pro".
+func extractBaseModelName(modelPath string) string {
+	// Split on ':' and take the first part as the base model name
+	parts := strings.Split(modelPath, ":")
+	if len(parts) > 0 {
+		return parts[0]
+	}
+	return modelPath
+}
+
 // ProxyHandler is the main entry point for all incoming API requests.
 // It validates the request, decides whether to apply anti-truncate logic,
 // and then dispatches to the appropriate stream or non-stream handler.
@@ -42,7 +53,8 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 3. Determine if this request should be a simple passthrough
 	vars := mux.Vars(r)
-	model := vars["model"]
+	modelPath := vars["model"]
+	model := extractBaseModelName(modelPath)
 	isTargetModel := false
 	for _, m := range gemini.TargetModels {
 		if m == model {
